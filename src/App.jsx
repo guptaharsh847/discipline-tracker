@@ -64,20 +64,82 @@ function App() {
 
   // 🔔 Notification system
   useEffect(() => {
-    if ("Notification" in window) {
-      Notification.requestPermission().then((permission) => {
-        if (permission === "granted") {
-          setInterval(
-            () => {
-              new Notification("📢 Reminder", {
-                body: "Fill your discipline tracker today!",
-              });
-            },
-            1000 * 60 * 60 * 6,
-          ); // every 6 hours
-        }
-      });
+    if (!("Notification" in window)) return;
+
+    // Request permission if not already granted/denied
+    if (Notification.permission === "default") {
+      Notification.requestPermission();
     }
+
+    const checkTimeAndNotify = () => {
+      if (Notification.permission !== "granted") return;
+
+      const now = new Date();
+      const hours = now.getHours().toString().padStart(2, "0");
+      const minutes = now.getMinutes().toString().padStart(2, "0");
+      const timeString = `${hours}:${minutes}`;
+
+      // Define your daily schedule here (24-hour format)
+      const schedule = {
+        "00:20": {
+          title: "🌅 Good Morning!",
+          body: "Wake up! Time to start a great day.",
+        },
+        "05:30": {
+          title: "🌅 Good Morning!",
+          body: "Wake up! Time to start a great day.",
+        },
+        "07:30": {
+          title: "📖 Spiritual Time",
+          body: "Time to read Bhagvatam.",
+        },
+        "08:15": {
+          title: "📚 Study Time",
+          body: "Head to the library and start your study session.",
+        },
+        "13:00": {
+          title: "🥗 Lunch Time",
+          body: "Take a break, eat a healthy meal, and recharge.",
+        },
+        "15:00": {
+          title: "💧 Hydration",
+          body: "Drink some water and stretch for a bit.",
+        },
+        "16:00": {
+          title: "💪 Afternoon Stretch",
+          body: "Stand up, do a quick stretch, and refocus your mind.",
+        },
+        "18:00": {
+          title: "🌅 Evening Review",
+          body: "Review your daily goals and wind down your work.",
+        },
+        "20:00": {
+          title: "🚶‍♂️ Evening Walk",
+          body: "Time for your evening walk. Get some fresh air!",
+        },
+        "22:30": {
+          title: "📵 Digital Detox",
+          body: "Keep your phone away and prepare for sleep.",
+        },
+      };
+
+      const currentNotificationKey = `${now.toDateString()}-${timeString}`;
+      const lastNotified = localStorage.getItem("last_notified_time");
+
+      // Check if current time is in the schedule and hasn't been notified yet today
+      if (schedule[timeString] && lastNotified !== currentNotificationKey) {
+        new Notification(schedule[timeString].title, {
+          body: schedule[timeString].body,
+        });
+        localStorage.setItem("last_notified_time", currentNotificationKey);
+      }
+    };
+
+    // Check the time every 60 seconds (60000 ms)
+    const intervalId = setInterval(checkTimeAndNotify, 60000);
+    checkTimeAndNotify(); // Initial check on load
+
+    return () => clearInterval(intervalId);
   }, []);
 
   // ✅ Handle Submit
