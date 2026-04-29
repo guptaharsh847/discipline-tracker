@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import HabitList from "./components/HabitList";
 import Chart from "./components/Chart";
@@ -13,6 +13,46 @@ import { sendToSheet } from "./utils/api";
 import { calculateScore } from "./utils/helpers";
 
 function App() {
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+
+  // PWA Install prompt logic
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault();
+      // Stash the event so it can be triggered later.
+      setDeferredPrompt(e);
+      // Update UI to notify the user they can add to home screen
+      if (localStorage.getItem("pwa_install_dismissed") !== "true") {
+        setShowInstallPrompt(true);
+      }
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt,
+      );
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      setDeferredPrompt(null);
+      setShowInstallPrompt(false);
+    }
+  };
+
+  const handleClosePrompt = () => {
+    setShowInstallPrompt(false);
+    localStorage.setItem("pwa_install_dismissed", "true");
+  };
+
   // 🔔 Notification system
   useEffect(() => {
     if ("Notification" in window) {
@@ -100,6 +140,28 @@ function App() {
         <Heatmap />
         <MultiChart />
       </div>
+
+      {showInstallPrompt && (
+        <div className="pwa-install-modal-overlay fade-in">
+          <div className="pwa-install-modal-content">
+            <button className="close-button" onClick={handleClosePrompt}>
+              &times;
+            </button>
+            <h2 className="text-xl font-bold mb-2">
+              Install Discipline Tracker
+            </h2>
+            <p className="text-slate-600 dark:text-slate-300 mb-6">
+              Add this app to your home screen for quick and easy access.
+            </p>
+            <button
+              onClick={handleInstallClick}
+              className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors"
+            >
+              Install App
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
