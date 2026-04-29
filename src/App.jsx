@@ -15,6 +15,8 @@ import { calculateScore } from "./utils/helpers";
 function App() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [popup, setPopup] = useState(null);
+  const [needsReload, setNeedsReload] = useState(false);
 
   // PWA Install prompt logic
   useEffect(() => {
@@ -53,6 +55,13 @@ function App() {
     localStorage.setItem("pwa_install_dismissed", "true");
   };
 
+  const handleCloseMessagePopup = () => {
+    setPopup(null);
+    if (needsReload) {
+      window.location.reload();
+    }
+  };
+
   // 🔔 Notification system
   useEffect(() => {
     if ("Notification" in window) {
@@ -77,7 +86,11 @@ function App() {
 
     // 🚫 Date validation
     if (!date) {
-      alert("⚠️ Please select a date");
+      setPopup({
+        title: "Missing Date",
+        message: "⚠️ Please select a date before submitting.",
+        type: "warning",
+      });
       return;
     }
 
@@ -88,7 +101,11 @@ function App() {
     const alreadyExists = existing.find((d) => d.date === date);
 
     if (alreadyExists) {
-      alert("⚠️ Entry for this date already exists");
+      setPopup({
+        title: "Duplicate Entry",
+        message: "⚠️ An entry for this date already exists.",
+        type: "warning",
+      });
       return;
     }
 
@@ -106,13 +123,19 @@ function App() {
 
     // 🎯 Reward / Punishment
     if (score >= 8) {
-      alert("🎉 Great job! Reward unlocked!");
+      setPopup({
+        title: "🎉 Amazing Work!",
+        message: "Great job! Keep building that discipline. Reward unlocked!",
+        type: "success",
+      });
     } else {
-      alert("⚠️ Improve! Try better tomorrow.");
+      setPopup({
+        title: "💪 Keep Pushing!",
+        message: "Every day is a new opportunity. Try to improve tomorrow!",
+        type: "motivation",
+      });
     }
-
-    // 🔄 Refresh UI (simple approach)
-    window.location.reload();
+    setNeedsReload(true);
   };
 
   return (
@@ -158,6 +181,32 @@ function App() {
               className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors"
             >
               Install App
+            </button>
+          </div>
+        </div>
+      )}
+
+      {popup && (
+        <div className="pwa-install-modal-overlay fade-in">
+          <div className="pwa-install-modal-content">
+            <button className="close-button" onClick={handleCloseMessagePopup}>
+              &times;
+            </button>
+            <h2 className="text-2xl font-bold mb-3">{popup.title}</h2>
+            <p className="text-slate-600 dark:text-slate-300 mb-6 text-lg">
+              {popup.message}
+            </p>
+            <button
+              onClick={handleCloseMessagePopup}
+              className={`w-full text-white font-bold py-3 px-4 rounded-xl transition-colors ${
+                popup.type === "success"
+                  ? "bg-green-500 hover:bg-green-600"
+                  : popup.type === "warning"
+                    ? "bg-yellow-500 hover:bg-yellow-600"
+                    : "bg-blue-500 hover:bg-blue-600"
+              }`}
+            >
+              Continue
             </button>
           </div>
         </div>

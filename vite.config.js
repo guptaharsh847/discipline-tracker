@@ -11,7 +11,7 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.png'],
       manifest: {
         name: 'Discipline Tracker',
-        short_name: 'Tracker',
+        short_name: 'DisTrack',
         description: 'Track your daily discipline and habits easily.',
         theme_color: '#ffffff',
         icons: [
