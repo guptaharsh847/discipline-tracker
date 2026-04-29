@@ -81,10 +81,7 @@ function App() {
 
       // Define your daily schedule here (24-hour format)
       const schedule = {
-        "00:20": {
-          title: "🌅 Good Morning!",
-          body: "Wake up! Time to start a great day.",
-        },
+       
         "05:30": {
           title: "🌅 Good Morning!",
           body: "Wake up! Time to start a great day.",
