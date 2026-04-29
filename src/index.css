@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 🌗 Dark mode base */
+html.dark {
+  background-color: #0f172a;
+  color: white;
+}
+
+/* 🔥 Smooth UI transitions (global) */
+* {
+  transition: background-color 0.2s ease,
+              color 0.2s ease,
+              border-color 0.2s ease,
+              transform 0.15s ease;
+}
+
+/* 📅 Heatmap colors */
+.color-empty { fill: #1e293b; }
+.color-red { fill: #ef4444; }
+.color-yellow { fill: #facc15; }
+.color-green { fill: #22c55e; }
+
+/* 📱 Better touch feel (buttons auto smooth) */
+button {
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+button:active {
+  transform: scale(0.96);
+}
+
+/* 🔥 Inputs improve look slightly */
+input, textarea {
+  outline: none;
+}
+
+/* ⚡ Scrollbar (modern look) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 10px;
+}
+
+/* ✨ Simple fade animation */
+.fade-in {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
